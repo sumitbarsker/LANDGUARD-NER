@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>LandGuard NER | Landslide Risk Monitoring</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Leaflet CSS -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- HEADER -->
+    <header class="topbar">
+
+        <div>
+            <h1>LandGuard NER</h1>
+
+            <p>
+                Landslide Risk Monitoring System
+            </p>
+        </div>
+
+        <div class="status">
+            <span class="status-dot"></span>
+
+            <span>
+                System Online
+            </span>
+        </div>
+
+    </header>
+
+
+    <!-- MAIN -->
+    <main class="container">
+
+        <!-- HERO -->
+        <section class="hero">
+
+            <h2 id="heroTitle">
+                Landslide Risk Assessment
+            </h2>
+
+            <p>
+                Enter the location, environmental conditions
+                and landslide information to assess the
+                potential risk.
+            </p>
+
+        </section>
+
+
+        <!-- DASHBOARD OVERVIEW -->
+        <section class="card dashboard-overview">
+
+            <div class="section-header">
+
+                <div>
+                    <h3>
+                        📊 Dashboard Overview
+                    </h3>
+
+                    <p>
+                        Current landslide risk monitoring summary.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="overview-grid">
+
+                <div class="overview-card">
+
+                    <div class="overview-icon">
+                        📍
+                    </div>
+
+                    <div>
+                        <span>Total Assessments</span>
+
+                        <strong id="overviewTotal">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="overview-card critical-card">
+
+                    <div class="overview-icon">
+                        🔴
+                    </div>
+
+                    <div>
+                        <span>Critical</span>
+
+                        <strong id="overviewCritical">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="overview-card high-card">
+
+                    <div class="overview-icon">
+                        🟠
+                    </div>
+
+                    <div>
+                        <span>High Risk</span>
+
+                        <strong id="overviewHigh">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="overview-card moderate-card">
+
+                    <div class="overview-icon">
+                        🟡
+                    </div>
+
+                    <div>
+                        <span>Moderate</span>
+
+                        <strong id="overviewModerate">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="overview-card low-card">
+
+                    <div class="overview-icon">
+                        🟢
+                    </div>
+
+                    <div>
+                        <span>Low Risk</span>
+
+                        <strong id="overviewLow">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ENVIRONMENTAL MONITORING -->
+        <section class="card environmental-monitoring-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h3 id="environmentalMonitoringTitle">
+                        🌍 Environmental Monitoring
+                    </h3>
+
+                    <p id="environmentalMonitoringDescription">
+                        Latest environmental conditions from the selected assessment location.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="refreshEnvironmentBtn"
+                    class="secondary-btn"
+                    type="button"
+                    onclick="refreshEnvironmentNow()"
+                >
+                    🔄 Refresh Data
+                </button>
+
+            </div>
+
+
+            <div class="environmental-status-row">
+
+                <div class="environmental-live-status">
+
+                    <span
+                        id="environmentalStatusDot"
+                        class="environmental-status-dot"
+                    ></span>
+
+                    <span id="environmentStatus">
+                        Waiting for risk assessment
+                    </span>
+
+                </div>
+
+
+                <span id="environmentalUpdated">
+                    Last Updated: --
+                </span>
+
+            </div>
+
+
+            <div class="environmental-grid">
+
+                <!-- RAINFALL -->
+                <div class="environmental-card">
+
+                    <div class="environmental-icon">
+                        🌧️
+                    </div>
+
+                    <div>
+
+                        <span id="rainfallLabel">
+                            Rainfall
+                        </span>
+
+                        <strong id="rainfallValue">
+                            --
+                        </strong>
+
+                        <small>
+                            mm
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SOIL MOISTURE -->
+                <div class="environmental-card">
+
+                    <div class="environmental-icon">
+                        💧
+                    </div>
+
+                    <div>
+
+                        <span id="soilMoistureLabel">
+                            Soil Moisture
+                        </span>
+
+                        <strong id="soilMoistureValue">
+                            --
+                        </strong>
+
+                        <small>
+                            %
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SLOPE -->
+                <div class="environmental-card">
+
+                    <div class="environmental-icon">
+                        ⛰️
+                    </div>
+
+                    <div>
+
+                        <span id="slopeLabel">
+                            Slope
+                        </span>
+
+                        <strong id="slopeValue">
+                            --
+                        </strong>
+
+                        <small>
+                            degrees
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ENVIRONMENTAL RISK -->
+                <div class="environmental-card">
+
+                    <div class="environmental-icon">
+                        ⚠️
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Environmental Risk
+                        </span>
+
+                        <strong id="environmentalMonitoringLevel">
+                            --
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="environmentalDataText"
+                class="environmental-monitoring-message"
+            >
+                Run a risk assessment to load environmental monitoring data.
+            </div>
+
+        </section>
+
+
+        <!-- RISK ASSESSMENT -->
+        <section class="card">
+
+            <h3 id="assessmentTitle">
+                Location Details
+            </h3>
+
+
+            <div class="form-grid">
+
+                <!-- STATE -->
+                <div class="field">
+
+                    <label for="state">
+                        State
+                    </label>
+
+                    <select id="state">
+
+                        <option value="">
+                            Select State
+                        </option>
+
+                        <option value="Arunachal Pradesh">
+                            Arunachal Pradesh
+                        </option>
+
+                        <option value="Assam">
+                            Assam
+                        </option>
+
+                        <option value="Manipur">
+                            Manipur
+                        </option>
+
+                        <option value="Meghalaya">
+                            Meghalaya
+                        </option>
+
+                        <option value="Mizoram">
+                            Mizoram
+                        </option>
+
+                        <option value="Nagaland">
+                            Nagaland
+                        </option>
+
+                        <option value="Sikkim">
+                            Sikkim
+                        </option>
+
+                        <option value="Tripura">
+                            Tripura
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- DISTRICT -->
+                <div class="field">
+
+                    <label for="district">
+                        District
+                    </label>
+
+                    <input
+                        type="text"
+                        id="district"
+                        placeholder="Enter district"
+                    >
+
+                </div>
+
+
+                <!-- LATITUDE -->
+                <div class="field">
+
+                    <label for="latitude">
+                        Latitude
+                    </label>
+
+                    <input
+                        type="number"
+                        id="latitude"
+                        step="any"
+                        placeholder="Example: 27.33"
+                    >
+
+                </div>
+
+
+                <!-- LONGITUDE -->
+                <div class="field">
+
+                    <label for="longitude">
+                        Longitude
+                    </label>
+
+                    <input
+                        type="number"
+                        id="longitude"
+                        step="any"
+                        placeholder="Example: 88.62"
+                    >
+
+                </div>
+
+
+                <!-- MATERIAL -->
+                <div class="field">
+
+                    <label for="material">
+                        Material Involved
+                    </label>
+
+                    <select id="material">
+
+                        <option value="Unknown">
+                            Unknown
+                        </option>
+
+                        <option value="Debris">
+                            Debris
+                        </option>
+
+                        <option value="Rock">
+                            Rock
+                        </option>
+
+                        <option value="Earth">
+                            Earth
+                        </option>
+
+                        <option value="Soil">
+                            Soil
+                        </option>
+
+                        <option value="Rock cum Debris">
+                            Rock cum Debris
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- MOVEMENT TYPE -->
+                <div class="field">
+
+                    <label for="movement_type">
+                        Movement Type
+                    </label>
+
+                    <select id="movement_type">
+
+                        <option value="Unknown">
+                            Unknown
+                        </option>
+
+                        <option value="Slide">
+                            Slide
+                        </option>
+
+                        <option value="Fall">
+                            Fall
+                        </option>
+
+                        <option value="Flow">
+                            Flow
+                        </option>
+
+                        <option value="Complex">
+                            Complex
+                        </option>
+
+                        <option value="Subsidence">
+                            Subsidence
+                        </option>
+
+                        <option value="Topple">
+                            Topple
+                        </option>
+
+                        <option value="Creep">
+                            Creep
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- RAINFALL -->
+                <div class="field">
+
+                    <label for="rainfall">
+                        Rainfall (mm)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="rainfall"
+                        step="any"
+                        min="0"
+                        placeholder="Example: 120"
+                    >
+
+                </div>
+
+
+                <!-- SOIL MOISTURE -->
+                <div class="field">
+
+                    <label for="soil_moisture">
+                        Soil Moisture (%)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="soil_moisture"
+                        step="any"
+                        min="0"
+                        max="100"
+                        placeholder="Example: 85"
+                    >
+
+                </div>
+
+
+                <!-- SLOPE -->
+                <div class="field">
+
+                    <label for="slope">
+                        Slope (degrees)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="slope"
+                        step="any"
+                        min="0"
+                        max="90"
+                        placeholder="Example: 40"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="checkRisk"
+                type="button"
+                onclick="checkRisk()"
+            >
+                Check Landslide Risk
+            </button>
+
+        </section>
+
+
+        <!-- RESULT -->
+        <section
+            id="result"
+            class="result hidden"
+        >
+
+            <h3 id="resultTitle">
+                Risk Assessment Result
+            </h3>
+
+
+            <div class="result-grid">
+
+                <div class="result-box">
+
+                    <span>
+                        Final Risk Score
+                    </span>
+
+                    <strong id="riskScore">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <span>
+                        Risk Level
+                    </span>
+
+                    <strong id="riskLevel">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <span>
+                        Status
+                    </span>
+
+                    <strong id="riskMessage">
+                        --
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="result-grid">
+
+                <div class="result-box">
+
+                    <span>
+                        ML Risk Score
+                    </span>
+
+                    <strong id="mlScore">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <span>
+                        Environmental Score
+                    </span>
+
+                    <strong id="environmentalScore">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="result-box">
+
+                    <span>
+                        Environmental Risk
+                    </span>
+
+                    <strong id="environmentalLevel">
+                        --
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- AI RISK ANALYSIS -->
+            <div class="risk-breakdown">
+
+                <h3>
+                    🧠 AI Risk Analysis
+                </h3>
+
+
+                <div class="risk-bar-item">
+
+                    <div class="risk-bar-header">
+
+                        <span>
+                            🤖 ML Risk Score
+                        </span>
+
+                        <span id="mlScoreValue">
+                            --
+                        </span>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <div
+                            id="mlScoreBar"
+                            class="progress-fill"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="risk-bar-item">
+
+                    <div class="risk-bar-header">
+
+                        <span>
+                            🌧️ Environmental Risk
+                        </span>
+
+                        <span id="environmentalScoreValue">
+                            --
+                        </span>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <div
+                            id="environmentalScoreBar"
+                            class="progress-fill"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="risk-bar-item">
+
+                    <div class="risk-bar-header">
+
+                        <span>
+                            ⚠️ Final Risk Score
+                        </span>
+
+                        <span id="finalScoreValue">
+                            --
+                        </span>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <div
+                            id="finalScoreBar"
+                            class="progress-fill"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MODEL EXPLANATION -->
+            <div class="model-explanation card">
+
+                <h3 id="modelExplanationTitle">
+                    🤖 Model Explanation
+                </h3>
+
+                <p id="modelExplanationText">
+                    Risk score is calculated using machine
+                    learning prediction and environmental
+                    conditions.
+                </p>
+
+
+                <div class="explanation-grid">
+
+                    <div class="explanation-item">
+
+                        <span>
+                            ML Contribution
+                        </span>
+
+                        <strong id="mlContribution">
+                            0.00
+                        </strong>
+
+                    </div>
+
+
+                    <div class="explanation-item">
+
+                        <span>
+                            Environmental Contribution
+                        </span>
+
+                        <strong id="environmentalContribution">
+                            0.00
+                        </strong>
+
+                    </div>
+
+
+                    <div class="explanation-item">
+
+                        <span>
+                            Final Risk Score
+                        </span>
+
+                        <strong id="explanationFinalScore">
+                            0.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- EARLY WARNING -->
+            <div
+                id="earlyWarningAlert"
+                class="early-warning-alert"
+                style="display: none;"
+            >
+
+                <div class="alert-icon">
+                    ⚠️
+                </div>
+
+                <div class="alert-content">
+
+                    <h3 id="alertTitle">
+                        Early Warning
+                    </h3>
+
+                    <p id="alertMessage">
+                        Risk assessment information will
+                        appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ENVIRONMENTAL RESULT -->
+            <div class="location-result">
+
+                <strong>
+                    Environmental Conditions
+                </strong>
+
+                <p id="environmentalResultText">
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- LOCATION -->
+            <div class="location-result">
+
+                <strong>
+                    Location
+                </strong>
+
+                <p id="locationText">
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- RECOMMENDATIONS -->
+            <div
+                class="location-result"
+                id="recommendationsBox"
+            >
+
+                <strong>
+                    Safety Recommendations
+                </strong>
+
+                <ul id="recommendations">
+
+                    <li>
+                        Recommendations will appear
+                        after assessment.
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYTICS -->
+        <section class="card risk-analytics-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h3 id="analyticsTitle">
+                        📈 Risk Analytics
+                    </h3>
+
+                    <p>
+                        Summary of recent landslide risk
+                        assessments.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-grid">
+
+                <div class="analytics-card">
+
+                    <span class="analytics-label">
+                        Average Risk Score
+                    </span>
+
+                    <strong id="averageRiskScore">
+                        0%
+                    </strong>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span class="analytics-label">
+                        Highest Risk Score
+                    </span>
+
+                    <strong id="highestRiskScore">
+                        0%
+                    </strong>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span class="analytics-label">
+                        Latest Risk Level
+                    </span>
+
+                    <strong id="latestRiskLevel">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span class="analytics-label">
+                        Total Locations
+                    </span>
+
+                    <strong id="analyticsLocations">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- RISK DISTRIBUTION -->
+            <div class="risk-distribution">
+
+                <h4>
+                    Risk Distribution
+                </h4>
+
+
+                <div class="distribution-item">
+
+                    <div class="distribution-header">
+
+                        <span>
+                            Critical
+                        </span>
+
+                        <strong id="analyticsCritical">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <div class="distribution-bar">
+
+                        <div
+                            id="criticalDistributionBar"
+                            class="distribution-fill critical"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="distribution-item">
+
+                    <div class="distribution-header">
+
+                        <span>
+                            High
+                        </span>
+
+                        <strong id="analyticsHigh">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <div class="distribution-bar">
+
+                        <div
+                            id="highDistributionBar"
+                            class="distribution-fill high"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="distribution-item">
+
+                    <div class="distribution-header">
+
+                        <span>
+                            Moderate
+                        </span>
+
+                        <strong id="analyticsModerate">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <div class="distribution-bar">
+
+                        <div
+                            id="moderateDistributionBar"
+                            class="distribution-fill moderate"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="distribution-item">
+
+                    <div class="distribution-header">
+
+                        <span>
+                            Low
+                        </span>
+
+                        <strong id="analyticsLow">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <div class="distribution-bar">
+
+                        <div
+                            id="lowDistributionBar"
+                            class="distribution-fill low"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- HISTORY -->
+        <section class="card risk-history-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h3 id="historyTitle">
+                        📊 Risk Assessment History
+                    </h3>
+
+                    <p>
+                        Recent landslide risk assessments
+                        performed by the system.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="clearHistoryBtn"
+                    class="clear-history-btn"
+                    type="button"
+                >
+                    🗑️ Clear History
+                </button>
+
+            </div>
+
+
+            <div class="history-summary">
+
+                <div class="history-stat">
+
+                    <span class="history-stat-label">
+                        Total Assessments
+                    </span>
+
+                    <strong id="historyTotal">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="history-stat">
+
+                    <span class="history-stat-label">
+                        Critical
+                    </span>
+
+                    <strong id="historyCritical">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="history-stat">
+
+                    <span class="history-stat-label">
+                        High
+                    </span>
+
+                    <strong id="historyHigh">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="history-stat">
+
+                    <span class="history-stat-label">
+                        Moderate
+                    </span>
+
+                    <strong id="historyModerate">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="history-stat">
+
+                    <span class="history-stat-label">
+                        Low
+                    </span>
+
+                    <strong id="historyLow">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="history-controls">
+
+                <div class="history-filter">
+
+                    <label for="historyRiskFilter">
+                        Filter by Risk Level
+                    </label>
+
+                    <select id="historyRiskFilter">
+
+                        <option value="">
+                            All Risk Levels
+                        </option>
+
+                        <option value="Critical">
+                            Critical
+                        </option>
+
+                        <option value="High">
+                            High
+                        </option>
+
+                        <option value="Moderate">
+                            Moderate
+                        </option>
+
+                        <option value="Low">
+                            Low
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="history-table-container">
+
+                <table class="risk-history-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date &amp; Time
+                            </th>
+
+                            <th>
+                                State
+                            </th>
+
+                            <th>
+                                District
+                            </th>
+
+                            <th>
+                                Latitude
+                            </th>
+
+                            <th>
+                                Longitude
+                            </th>
+
+                            <th>
+                                Risk Score
+                            </th>
+
+                            <th>
+                                Risk Level
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="riskHistoryBody">
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="no-history"
+                            >
+                                No risk assessments yet.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- GEO TAGGED INCIDENT REPORT -->
+        <section class="card incident-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h3 id="incidentsTitle">
+                        📍 Report Landslide Incident
+                    </h3>
+
+                    <p>
+                        Report a landslide or suspicious
+                        ground movement at a specific location.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label for="incidentType">
+                        Incident Type
+                    </label>
+
+                    <select id="incidentType">
+
+                        <option value="Landslide">
+                            Landslide
+                        </option>
+
+                        <option value="Rockfall">
+                            Rockfall
+                        </option>
+
+                        <option value="Debris Flow">
+                            Debris Flow
+                        </option>
+
+                        <option value="Crack">
+                            Ground Crack
+                        </option>
+
+                        <option value="Slope Movement">
+                            Slope Movement
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="incidentSeverity">
+                        Severity
+                    </label>
+
+                    <select id="incidentSeverity">
+
+                        <option value="Low">
+                            Low
+                        </option>
+
+                        <option value="Moderate">
+                            Moderate
+                        </option>
+
+                        <option value="High">
+                            High
+                        </option>
+
+                        <option value="Critical">
+                            Critical
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="incidentState">
+                        State
+                    </label>
+
+                    <select id="incidentState">
+
+                        <option value="">
+                            Select State
+                        </option>
+
+                        <option value="Arunachal Pradesh">
+                            Arunachal Pradesh
+                        </option>
+
+                        <option value="Assam">
+                            Assam
+                        </option>
+
+                        <option value="Manipur">
+                            Manipur
+                        </option>
+
+                        <option value="Meghalaya">
+                            Meghalaya
+                        </option>
+
+                        <option value="Mizoram">
+                            Mizoram
+                        </option>
+
+                        <option value="Nagaland">
+                            Nagaland
+                        </option>
+
+                        <option value="Sikkim">
+                            Sikkim
+                        </option>
+
+                        <option value="Tripura">
+                            Tripura
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="incidentDistrict">
+                        District
+                    </label>
+
+                    <input
+                        type="text"
+                        id="incidentDistrict"
+                        placeholder="Enter district"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="incidentLatitude">
+                        Latitude
+                    </label>
+
+                    <input
+                        type="number"
+                        id="incidentLatitude"
+                        step="any"
+                        placeholder="Example: 27.3389"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="incidentLongitude">
+                        Longitude
+                    </label>
+
+                    <input
+                        type="number"
+                        id="incidentLongitude"
+                        step="any"
+                        placeholder="Example: 88.6065"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="incidentDescription">
+                    Description
+                </label>
+
+                <textarea
+                    id="incidentDescription"
+                    rows="4"
+                    placeholder="Describe the incident..."
+                ></textarea>
+
+            </div>
+
+
+            <br>
+
+
+            <button
+                id="reportIncidentBtn"
+                type="button"
+                onclick="reportIncident()"
+            >
+                📍 Submit Incident Report
+            </button>
+
+        </section>
+
+
+        <!-- MAP -->
+        <section class="card map-section">
+
+            <h3 id="mapTitle">
+                Landslide Inventory Map
+            </h3>
+
+
+            <p>
+                Historical landslide locations and
+                current risk assessment zones across
+                the North Eastern Region of India.
+            </p>
+
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label for="mapStateFilter">
+                        Filter Historical Landslides by State
+                    </label>
+
+                    <select id="mapStateFilter">
+
+                        <option value="">
+                            All States
+                        </option>
+
+                        <option value="Arunachal Pradesh">
+                            Arunachal Pradesh
+                        </option>
+
+                        <option value="Assam">
+                            Assam
+                        </option>
+
+                        <option value="Manipur">
+                            Manipur
+                        </option>
+
+                        <option value="Meghalaya">
+                            Meghalaya
+                        </option>
+
+                        <option value="Mizoram">
+                            Mizoram
+                        </option>
+
+                        <option value="Nagaland">
+                            Nagaland
+                        </option>
+
+                        <option value="Sikkim">
+                            Sikkim
+                        </option>
+
+                        <option value="Tripura">
+                            Tripura
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="mapDistrictFilter">
+                        Filter Historical Landslides by District
+                    </label>
+
+                    <select
+                        id="mapDistrictFilter"
+                        disabled
+                    >
+
+                        <option value="">
+                            All Districts
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- LEAFLET MAP -->
+            <div
+                id="map"
+                style="width: 100%; height: 540px;"
+            ></div>
+
+
+            <div class="map-info">
+
+                <span>
+                    📍 Historical Landslide Locations
+                </span>
+
+                <span>
+                    ⚠️ Risk Assessment Zones
+                </span>
+
+                <span>
+                    🚨 Reported Incidents
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            LandGuard NER • Landslide Risk Monitoring System
+        </p>
+
+    </footer>
+
+
+    <!-- LEAFLET JS -->
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
+
+    <!-- PROJECT JS -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
