@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import APP_NAME, APP_VERSION, DEBUG
-from app.api.risk import router as risk_router
+from config import APP_NAME, APP_VERSION, DEBUG
+from risk import router as risk_router
 
 
 app = FastAPI(
@@ -23,6 +23,7 @@ app.add_middleware(
         "http://localhost:5500",
         "http://127.0.0.1:5501",
         "http://localhost:5501",
+        "https://sumitbarsker.github.io",
         "null"
     ],
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
