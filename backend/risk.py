@@ -3,9 +3,15 @@ from pydantic import BaseModel
 import joblib
 import pandas as pd
 from pathlib import Path
+import zipfile
 
-from app.services.risk_engine import calculate_risk_score
-from app.services.environmental_service import get_environmental_data
+
+# =====================================================
+# LOCAL IMPORTS
+# =====================================================
+
+from risk_engine import calculate_risk_score
+from environmental_service import get_environmental_data
 
 
 router = APIRouter()
@@ -15,11 +21,51 @@ router = APIRouter()
 # MODEL PATH
 # =====================================================
 
-BASE_DIR = Path(__file__).resolve().parents[3]
+# Repository root
+BASE_DIR = Path(__file__).resolve().parents[1]
 
-MODEL_PATH = BASE_DIR / "models" / "landslide_model.pkl"
+MODELS_DIR = BASE_DIR / "models"
+MODEL_ZIP = MODELS_DIR / "landslide_model.zip"
+EXTRACT_DIR = MODELS_DIR / "extracted"
+
+EXTRACT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# =====================================================
+# EXTRACT MODEL ZIP
+# =====================================================
+
+if not MODEL_ZIP.exists():
+    raise FileNotFoundError(
+        f"Model ZIP not found: {MODEL_ZIP}"
+    )
+
+
+# Extract only if no .pkl model is already available
+existing_models = list(EXTRACT_DIR.glob("*.pkl"))
+
+if not existing_models:
+
+    with zipfile.ZipFile(MODEL_ZIP, "r") as zip_ref:
+        zip_ref.extractall(EXTRACT_DIR)
+
+
+# Find the extracted .pkl model
+model_files = list(EXTRACT_DIR.rglob("*.pkl"))
+
+if not model_files:
+    raise FileNotFoundError(
+        "No .pkl model found inside landslide_model.zip"
+    )
+
+
+MODEL_PATH = model_files[0]
+
+print(f"Loading ML model from: {MODEL_PATH}")
 
 model = joblib.load(MODEL_PATH)
+
+print("ML model loaded successfully.")
 
 
 # =====================================================
@@ -27,6 +73,7 @@ model = joblib.load(MODEL_PATH)
 # =====================================================
 
 class RiskInput(BaseModel):
+
     state: str
     district: str
 
@@ -36,7 +83,6 @@ class RiskInput(BaseModel):
     material: str = "Unknown"
     movement_type: str = "Unknown"
 
-    # Optional manual environmental values
     rainfall: float = 0
     soil_moisture: float = 0
     slope: float = 0
