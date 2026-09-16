@@ -5,7 +5,7 @@ let riskZoneLayer = null;
 let incidentLayer = null;
 let inventoryData = [];
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://landguard-ner-umlv.onrender.com";
 
 const MAX_INVENTORY_MARKERS = 500;
 const RISK_HISTORY_KEY = "landguardRiskHistory";
