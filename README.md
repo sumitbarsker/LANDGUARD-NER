@@ -2,26 +2,31 @@
 
 ## Landslide Risk Monitoring System
 
-LANDGUARD-NER is a web-based system for checking landslide risk in the North Eastern Region of India.
+LANDGUARD-NER is a web-based landslide risk monitoring and assessment system developed for the North Eastern Region (NER) of India.
 
-The project uses Machine Learning along with environmental conditions such as rainfall, soil moisture and slope to calculate a landslide risk score.
+The main purpose of this project is to provide a simple way to assess landslide risk for a particular location using Machine Learning and environmental conditions.
 
-## What this project does
+The system takes location details and different environmental parameters as input and generates a risk score, risk level and safety recommendations.
 
-- Checks landslide risk for a selected location
-- Uses a Machine Learning model for prediction
-- Takes rainfall, soil moisture and slope into account
-- Shows ML risk score and environmental risk
-- Gives the final risk level
-- Shows safety recommendations
-- Stores previous risk assessments
-- Shows risk analytics
-- Allows users to report landslide incidents
-- Displays historical landslide locations on a map
+---
 
-## Input Details
+## About the Project
 
-The user can enter:
+Landslides can occur due to different factors such as heavy rainfall, high soil moisture and steep slopes. Monitoring these factors can help in understanding the possible risk at a particular location.
+
+LANDGUARD-NER combines a Machine Learning model with environmental risk calculation to generate an overall landslide risk assessment.
+
+The project also includes an interactive map, risk history, analytics and incident reporting features.
+
+---
+
+## Main Features
+
+### 1. Landslide Risk Assessment
+
+Users can enter information about a location and check its possible landslide risk.
+
+The assessment includes:
 
 - State
 - District
@@ -33,33 +38,134 @@ The user can enter:
 - Soil moisture
 - Slope
 
-## Technologies Used
+After submitting the information, the system displays the calculated risk result.
 
-**Frontend**
-- HTML
-- CSS
-- JavaScript
-- Leaflet.js
+---
 
-**Backend**
-- Python
-- FastAPI
-- Uvicorn
+### 2. Machine Learning Based Prediction
 
-**Machine Learning**
-- Scikit-learn
-- Pandas
-- Joblib
+The project uses a trained Machine Learning model for landslide risk prediction.
 
-## Project Structure
+The model is loaded by the FastAPI backend and is used during the risk assessment process.
+
+The result includes an ML Risk Score which is used along with environmental factors to calculate the final risk.
+
+---
+
+### 3. Environmental Monitoring
+
+The system provides an environmental monitoring section for the selected assessment location.
+
+It displays:
+
+- Rainfall
+- Soil Moisture
+- Slope
+- Environmental Risk
+
+The environmental information is also used as part of the overall risk assessment.
+
+---
+
+### 4. Risk Levels
+
+The system classifies the calculated risk into different levels:
+
+- Low
+- Moderate
+- High
+- Critical
+
+The risk level is displayed along with the final risk score.
+
+---
+
+### 5. AI Risk Analysis
+
+After an assessment, the dashboard shows a risk analysis section containing:
+
+- ML Risk Score
+- Environmental Risk
+- Final Risk Score
+
+Progress bars are used to make the risk values easier to understand.
+
+---
+
+### 6. Model Explanation
+
+The result section provides a basic explanation of how the final risk score is formed.
+
+It displays:
+
+- ML Contribution
+- Environmental Contribution
+- Final Risk Score
+
+This helps the user understand the contribution of different parts of the assessment.
+
+---
+
+### 7. Early Warning
+
+The system includes an early warning section which can display warning information based on the assessed risk.
+
+This allows important risk information to be shown clearly when the calculated risk is higher.
+
+---
+
+### 8. Safety Recommendations
+
+Based on the assessment, the system displays safety recommendations.
+
+These recommendations are shown below the risk result so that the user can easily understand what actions may be considered for the assessed location.
+
+---
+
+## Risk Calculation
+
+The environmental risk calculation uses three main parameters:
+
+### Rainfall
+
+Rainfall is divided into different ranges and contributes to the environmental risk score.
+
+### Soil Moisture
+
+Higher soil moisture contributes more to the risk score.
+
+### Slope
+
+Steeper slopes contribute more to the risk score.
+
+The environmental risk engine uses these parameters to calculate a score and classify it as Low, Moderate, High or Critical.
+
+The Machine Learning prediction and environmental assessment are then used to produce the final risk result.
+
+---
+
+## Risk Assessment Flow
 
 ```text
-LANDGUARD-NER/
-│
-├── backend/
-├── data/
-├── frontend/
-├── ml/
-├── models/
-├── index.html
-└── README.md
+User Input
+    |
+    v
+Location Details
+    |
+    v
+Environmental Parameters
+    |
+    v
+Machine Learning Prediction
+    |
+    v
+Environmental Risk Calculation
+    |
+    v
+Final Risk Score
+    |
+    v
+Risk Level
+    |
+    v
+Recommendations and Warning
