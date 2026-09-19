@@ -56,9 +56,9 @@
             </h2>
 
             <p>
-                Enter the location, environmental conditions
-                and landslide information to assess the
-                potential risk.
+                Select a location and LANDGUARD will automatically
+                collect environmental conditions and assess the
+                potential landslide risk.
             </p>
 
         </section>
@@ -344,21 +344,23 @@
         <section class="card">
 
             <h3 id="assessmentTitle">
-                Location Details
+                📍 Select Location
             </h3>
 
+            <p style="margin-bottom: 20px;">
+                Select the assessment location. Rainfall, soil moisture and
+                terrain slope are collected automatically by the system.
+            </p>
 
             <div class="form-grid">
 
                 <!-- STATE -->
                 <div class="field">
-
                     <label for="state">
                         State
                     </label>
 
                     <select id="state">
-
                         <option value="">
                             Select State
                         </option>
@@ -394,15 +396,11 @@
                         <option value="Tripura">
                             Tripura
                         </option>
-
                     </select>
-
                 </div>
-
 
                 <!-- DISTRICT -->
                 <div class="field">
-
                     <label for="district">
                         District
                     </label>
@@ -412,13 +410,10 @@
                         id="district"
                         placeholder="Enter district"
                     >
-
                 </div>
-
 
                 <!-- LATITUDE -->
                 <div class="field">
-
                     <label for="latitude">
                         Latitude
                     </label>
@@ -429,13 +424,10 @@
                         step="any"
                         placeholder="Example: 27.33"
                     >
-
                 </div>
-
 
                 <!-- LONGITUDE -->
                 <div class="field">
-
                     <label for="longitude">
                         Longitude
                     </label>
@@ -446,158 +438,43 @@
                         step="any"
                         placeholder="Example: 88.62"
                     >
-
-                </div>
-
-
-                <!-- MATERIAL -->
-                <div class="field">
-
-                    <label for="material">
-                        Material Involved
-                    </label>
-
-                    <select id="material">
-
-                        <option value="Unknown">
-                            Unknown
-                        </option>
-
-                        <option value="Debris">
-                            Debris
-                        </option>
-
-                        <option value="Rock">
-                            Rock
-                        </option>
-
-                        <option value="Earth">
-                            Earth
-                        </option>
-
-                        <option value="Soil">
-                            Soil
-                        </option>
-
-                        <option value="Rock cum Debris">
-                            Rock cum Debris
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- MOVEMENT TYPE -->
-                <div class="field">
-
-                    <label for="movement_type">
-                        Movement Type
-                    </label>
-
-                    <select id="movement_type">
-
-                        <option value="Unknown">
-                            Unknown
-                        </option>
-
-                        <option value="Slide">
-                            Slide
-                        </option>
-
-                        <option value="Fall">
-                            Fall
-                        </option>
-
-                        <option value="Flow">
-                            Flow
-                        </option>
-
-                        <option value="Complex">
-                            Complex
-                        </option>
-
-                        <option value="Subsidence">
-                            Subsidence
-                        </option>
-
-                        <option value="Topple">
-                            Topple
-                        </option>
-
-                        <option value="Creep">
-                            Creep
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- RAINFALL -->
-                <div class="field">
-
-                    <label for="rainfall">
-                        Rainfall (mm)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="rainfall"
-                        step="any"
-                        min="0"
-                        placeholder="Example: 120"
-                    >
-
-                </div>
-
-
-                <!-- SOIL MOISTURE -->
-                <div class="field">
-
-                    <label for="soil_moisture">
-                        Soil Moisture (%)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="soil_moisture"
-                        step="any"
-                        min="0"
-                        max="100"
-                        placeholder="Example: 85"
-                    >
-
-                </div>
-
-
-                <!-- SLOPE -->
-                <div class="field">
-
-                    <label for="slope">
-                        Slope (degrees)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="slope"
-                        step="any"
-                        min="0"
-                        max="90"
-                        placeholder="Example: 40"
-                    >
-
                 </div>
 
             </div>
 
+            <!--
+                Hidden compatibility fields.
+                The current JavaScript still reads these IDs, while the
+                backend automatically obtains environmental conditions
+                from the selected latitude/longitude.
+            -->
+            <input type="hidden" id="material" value="Unknown">
+            <input type="hidden" id="movement_type" value="Unknown">
+            <input type="hidden" id="rainfall" value="0">
+            <input type="hidden" id="soil_moisture" value="0">
+            <input type="hidden" id="slope" value="0">
+
+            <div
+                style="
+                    margin-top: 18px;
+                    padding: 14px 16px;
+                    border-radius: 10px;
+                    background: #f0fdf4;
+                    border-left: 4px solid #22c55e;
+                "
+            >
+                🌍 <strong>Automatic Environmental Monitoring:</strong>
+                After you select the location, LANDGUARD automatically
+                retrieves rainfall and soil-moisture conditions and estimates
+                terrain slope for the risk calculation.
+            </div>
 
             <button
                 id="checkRisk"
                 type="button"
                 onclick="checkRisk()"
             >
-                Check Landslide Risk
+                🔍 Check Landslide Risk
             </button>
 
         </section>
