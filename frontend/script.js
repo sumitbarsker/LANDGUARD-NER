@@ -2170,6 +2170,35 @@ function initializeMap() {
             );
 
 
+    // Click anywhere on the map to select an assessment location.
+    landslideMap.on("click", async function (event) {
+
+        const latitude = Number(event.latlng.lat.toFixed(6));
+        const longitude = Number(event.latlng.lng.toFixed(6));
+
+        if (
+            latitude < NER_BOUNDS.minLat ||
+            latitude > NER_BOUNDS.maxLat ||
+            longitude < NER_BOUNDS.minLon ||
+            longitude > NER_BOUNDS.maxLon
+        ) {
+            alert(
+                currentLanguage === "hi"
+                    ? "कृपया North Eastern Region के अंदर location select करें।"
+                    : "Please select a location within the North Eastern Region."
+            );
+            return;
+        }
+
+        await reverseGeocodeAssessmentLocation(
+            latitude,
+            longitude
+        );
+    });
+
+
+    initializeAutomaticLocationSelection();
+
     loadInventoryData();
 
     loadIncidentReports();
@@ -3872,314 +3901,334 @@ function updateEarlyWarning(
 
 
 /* =====================================================
+   LOCATION AUTO-DETECTION
+   ===================================================== */
+
+let locationLookupTimer = null;
+
+async function geocodeAssessmentLocation() {
+
+    const stateElement = document.getElementById("state");
+    const districtElement = document.getElementById("district");
+    const latitudeElement = document.getElementById("latitude");
+    const longitudeElement = document.getElementById("longitude");
+
+    const state = stateElement?.value.trim() || "";
+    const district = districtElement?.value.trim() || "";
+
+    if (!state || !district) {
+        return;
+    }
+
+    try {
+        const query = encodeURIComponent(`${district}, ${state}, India`);
+
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=in&q=${query}`,
+            {
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Geocoding error: ${response.status}`);
+        }
+
+        const results = await response.json();
+
+        if (!results.length) {
+            alert(
+                currentLanguage === "hi"
+                    ? "इस State/District की location नहीं मिली। District का नाम check करें।"
+                    : "Location not found for this State/District. Please check the district name."
+            );
+            return;
+        }
+
+        const latitude = Number(results[0].lat);
+        const longitude = Number(results[0].lon);
+
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            return;
+        }
+
+        latitudeElement.value = latitude.toFixed(6);
+        longitudeElement.value = longitude.toFixed(6);
+
+        updateMapLocation(
+            latitude,
+            longitude,
+            `<strong>${state}, ${district}</strong><br>Location selected`
+        );
+
+        if (landslideMap) {
+            landslideMap.setView(
+                [latitude, longitude],
+                Math.max(10, landslideMap.getZoom())
+            );
+        }
+
+    } catch (error) {
+        console.error("Location geocoding failed:", error);
+    }
+}
+
+function scheduleLocationLookup() {
+
+    clearTimeout(locationLookupTimer);
+
+    locationLookupTimer = setTimeout(
+        geocodeAssessmentLocation,
+        700
+    );
+}
+
+async function reverseGeocodeAssessmentLocation(latitude, longitude) {
+
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
+            {
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Reverse geocoding error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const address = result.address || {};
+
+        const state =
+            address.state ||
+            address.state_district ||
+            "";
+
+        const district =
+            address.state_district ||
+            address.district ||
+            address.county ||
+            address.city_district ||
+            address.city ||
+            "";
+
+        const stateElement = document.getElementById("state");
+        const districtElement = document.getElementById("district");
+        const latitudeElement = document.getElementById("latitude");
+        const longitudeElement = document.getElementById("longitude");
+
+        latitudeElement.value = Number(latitude).toFixed(6);
+        longitudeElement.value = Number(longitude).toFixed(6);
+
+        if (stateElement && state) {
+            const matchingOption = Array.from(stateElement.options).find(
+                option =>
+                    option.value.toLowerCase() === state.toLowerCase()
+            );
+
+            if (matchingOption) {
+                stateElement.value = matchingOption.value;
+            }
+        }
+
+        if (districtElement && district) {
+            districtElement.value = district;
+        }
+
+        updateMapLocation(
+            latitude,
+            longitude,
+            `<strong>${state || "Location"}</strong><br>${district || "Selected point"}`
+        );
+
+    } catch (error) {
+        console.error("Reverse geocoding failed:", error);
+
+        const latitudeElement = document.getElementById("latitude");
+        const longitudeElement = document.getElementById("longitude");
+
+        if (latitudeElement) {
+            latitudeElement.value = Number(latitude).toFixed(6);
+        }
+
+        if (longitudeElement) {
+            longitudeElement.value = Number(longitude).toFixed(6);
+        }
+    }
+}
+
+function initializeAutomaticLocationSelection() {
+
+    const stateElement = document.getElementById("state");
+    const districtElement = document.getElementById("district");
+
+    if (stateElement) {
+        stateElement.addEventListener(
+            "change",
+            scheduleLocationLookup
+        );
+    }
+
+    if (districtElement) {
+        districtElement.addEventListener(
+            "change",
+            scheduleLocationLookup
+        );
+
+        districtElement.addEventListener(
+            "blur",
+            scheduleLocationLookup
+        );
+    }
+}
+
+
+/* =====================================================
    CHECK RISK
    ===================================================== */
+
 
 async function checkRisk() {
 
     const state =
-        document.getElementById(
-            "state"
-        )?.value.trim();
-
+        document.getElementById("state")?.value.trim() || "";
 
     const district =
-        document.getElementById(
-            "district"
-        )?.value.trim();
+        document.getElementById("district")?.value.trim() || "";
 
+    const latitude = Number(
+        document.getElementById("latitude")?.value
+    );
 
-    const latitude =
-        Number(
-            document.getElementById(
-                "latitude"
-            )?.value
-        );
-
-
-    const longitude =
-        Number(
-            document.getElementById(
-                "longitude"
-            )?.value
-        );
-
-
-    const material =
-        document.getElementById(
-            "material"
-        )?.value ||
-        "Unknown";
-
-
-    const movement =
-        document.getElementById(
-            "movement_type"
-        )?.value ||
-        "Unknown";
-
-
-    const rainfall =
-        Number(
-            document.getElementById(
-                "rainfall"
-            )?.value
-        );
-
-
-    const soilMoisture =
-        Number(
-            document.getElementById(
-                "soil_moisture"
-            )?.value
-        );
-
-
-    const slope =
-        Number(
-            document.getElementById(
-                "slope"
-            )?.value
-        );
-
+    const longitude = Number(
+        document.getElementById("longitude")?.value
+    );
 
     if (!state) {
-
         alert(
             currentLanguage === "hi"
-                ? "कृपया State दर्ज करें।"
-                : "Please enter the state."
+                ? "कृपया State select करें।"
+                : "Please select the state."
         );
-
         return;
     }
 
-
     if (!district) {
-
         alert(
             currentLanguage === "hi"
                 ? "कृपया District दर्ज करें।"
                 : "Please enter the district."
         );
-
         return;
     }
 
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        await geocodeAssessmentLocation();
+    }
+
+    const finalLatitude = Number(
+        document.getElementById("latitude")?.value
+    );
+
+    const finalLongitude = Number(
+        document.getElementById("longitude")?.value
+    );
 
     if (
-        !Number.isFinite(
-            latitude
-        ) ||
-        !Number.isFinite(
-            longitude
-        )
+        !Number.isFinite(finalLatitude) ||
+        !Number.isFinite(finalLongitude)
     ) {
-
         alert(
             currentLanguage === "hi"
-                ? "कृपया valid latitude और longitude दर्ज करें।"
-                : "Please enter valid latitude and longitude."
+                ? "Location के coordinates automatically प्राप्त नहीं हो सके। Map पर location select करें।"
+                : "Location coordinates could not be obtained automatically. Please select a location on the map."
         );
-
         return;
     }
-
 
     if (
-        latitude < NER_BOUNDS.minLat ||
-        latitude > NER_BOUNDS.maxLat ||
-        longitude < NER_BOUNDS.minLon ||
-        longitude > NER_BOUNDS.maxLon
+        finalLatitude < NER_BOUNDS.minLat ||
+        finalLatitude > NER_BOUNDS.maxLat ||
+        finalLongitude < NER_BOUNDS.minLon ||
+        finalLongitude > NER_BOUNDS.maxLon
     ) {
-
         alert(
             currentLanguage === "hi"
-                ? "कृपया North Eastern Region के अंदर का location दर्ज करें।"
-                : "Please enter a location within the North Eastern Region."
+                ? "कृपया North Eastern Region के अंदर का location select करें।"
+                : "Please select a location within the North Eastern Region."
         );
-
         return;
     }
 
-
-    if (
-        !Number.isFinite(rainfall) ||
-        rainfall < 0
-    ) {
-
-        alert(
-            currentLanguage === "hi"
-                ? "कृपया valid Rainfall दर्ज करें।"
-                : "Please enter valid rainfall."
-        );
-
-        return;
-    }
-
-
-    if (
-        !Number.isFinite(soilMoisture) ||
-        soilMoisture < 0 ||
-        soilMoisture > 100
-    ) {
-
-        alert(
-            currentLanguage === "hi"
-                ? "Soil Moisture 0 से 100 के बीच दर्ज करें।"
-                : "Soil moisture must be between 0 and 100."
-        );
-
-        return;
-    }
-
-
-    if (
-        !Number.isFinite(slope) ||
-        slope < 0 ||
-        slope > 90
-    ) {
-
-        alert(
-            currentLanguage === "hi"
-                ? "Slope 0 से 90 degrees के बीच दर्ज करें।"
-                : "Slope must be between 0 and 90 degrees."
-        );
-
-        return;
-    }
-
-
-    const button =
-        document.getElementById(
-            "checkRisk"
-        );
-
+    const button = document.getElementById("checkRisk");
 
     if (button) {
-
-        button.disabled =
-            true;
-
+        button.disabled = true;
         button.textContent =
             currentLanguage === "hi"
                 ? "जोखिम जांचा जा रहा है..."
                 : "Checking Risk...";
     }
 
-
     lastRiskRequest = {
-
-        state:
-            state,
-
-        district:
-            district,
-
-        latitude:
-            latitude,
-
-        longitude:
-            longitude,
-
-        material:
-            material,
-
-        movement_type:
-            movement,
-
-        rainfall:
-            rainfall,
-
-        soil_moisture:
-            soilMoisture,
-
-        slope:
-            slope
+        state,
+        district,
+        latitude: finalLatitude,
+        longitude: finalLongitude,
+        material: "Unknown",
+        movement_type: "Unknown",
+        rainfall: 0,
+        soil_moisture: 0,
+        slope: 0
     };
 
-
     try {
-
-        const response =
-            await fetch(
-                `${API_URL}/risk`,
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(
-                            lastRiskRequest
-                        )
-                }
-            );
-
+        const response = await fetch(
+            `${API_URL}/risk`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(lastRiskRequest)
+            }
+        );
 
         if (!response.ok) {
-
-            throw new Error(
-                `API Error: ${response.status}`
-            );
+            throw new Error(`API Error: ${response.status}`);
         }
 
+        const result = await response.json();
 
-        const result =
-            await response.json();
+        latestRiskResult = result;
 
+        setRiskResult(result);
 
-        latestRiskResult =
-            result;
-
-
-        setRiskResult(
-            result
-        );
-
-
-        addRiskAssessmentToHistory(
-            result
-        );
-
+        addRiskAssessmentToHistory(result);
 
         updateMapLocation(
-            latitude,
-            longitude,
+            finalLatitude,
+            finalLongitude,
             `
                 <strong>
-                    ${translateRiskLevel(
-                        result.risk_level
-                    )}
+                    ${translateRiskLevel(result.risk_level)}
                 </strong>
                 <br>
-                ${t("riskScore")}: 
-                ${Number(
-                    result.risk_score
-                ).toFixed(2)}
+                ${t("riskScore")}: ${Number(result.risk_score).toFixed(2)}
                 <br>
                 ${state}, ${district}
             `
         );
 
-
-        fillIncidentFromCurrentRisk(
-            result
-        );
+        fillIncidentFromCurrentRisk(result);
 
     } catch (error) {
-
-        console.error(
-            "Risk assessment failed:",
-            error
-        );
-
+        console.error("Risk assessment failed:", error);
 
         alert(
             currentLanguage === "hi"
@@ -4188,17 +4237,13 @@ async function checkRisk() {
         );
 
     } finally {
-
         if (button) {
-
-            button.disabled =
-                false;
-
-            button.textContent =
-                t("checkRisk");
+            button.disabled = false;
+            button.textContent = t("checkRisk");
         }
     }
 }
+
 /* =====================================================
    ANALYTICS LABELS
    ===================================================== */
