@@ -8,7 +8,7 @@ let inventoryData = [];
 const API_URL = "https://landguard-ner-umlv.onrender.com";
 
 const MAX_INVENTORY_MARKERS = 500;
-const RISK_HISTORY_KEY = "landguardRiskHistory";
+const RISK_HISTORY_KEY = "landguardRiskHistory"
 const INCIDENT_REPORT_KEY = "landguardIncidentReports";
 const LANGUAGE_KEY = "landguardLanguage";
 const MAX_HISTORY = 50;
